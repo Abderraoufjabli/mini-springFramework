@@ -1,8 +1,8 @@
-package com.jablitech.minispring.beans;
+package com.Abderraouf.minispring.beans;
 
-import com.jablitech.minispring.annotations.Autowired;
-import com.jablitech.minispring.annotations.Qualifier;
-import com.jablitech.minispring.annotations.Service;
+import com.Abderraouf.minispring.annotations.Service;
+import com.Abderraouf.minispring.annotations.Autowired;
+import com.Abderraouf.minispring.annotations.Qualifier;
 
 @Service
 public class VehicleService {

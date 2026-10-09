@@ -1,7 +1,8 @@
-package com.jablitech.minispring;
+package com.Abderraouf.minispring;
 
+import com.Abderraouf.minispring.beans.VehicleService;
 import com.jablitech.minispring.beans.*;
-import com.jablitech.minispring.context.ApplicationContext;
+import com.Abderraouf.minispring.context.ApplicationContext;
 
 public class Exemple {
 

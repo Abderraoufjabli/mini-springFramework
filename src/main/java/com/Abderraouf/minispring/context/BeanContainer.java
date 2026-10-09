@@ -1,7 +1,7 @@
-package com.jablitech.minispring.context;
+package com.Abderraouf.minispring.context;
 
-import com.jablitech.minispring.annotations.*;
-import com.jablitech.minispring.beans.BeanDefinition;
+import com.Abderraouf.minispring.annotations.*;
+import com.Abderraouf.minispring.beans.BeanDefinition;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -73,6 +73,9 @@ public class BeanContainer {
     private Object createBean(Class<?> type) {
 
         try {
+            // on récupère le constructeur de la classe
+            // on utilise la méthode findConstructors pour trouver
+            // le constructeur annoté avec @Autowired ou le constructeur par défaut
 
             Constructor<?>[] constructors = findConstructors(type);
 
@@ -83,24 +86,36 @@ public class BeanContainer {
                 );
             }
 
+            // on récupère le constructeur unique de la classe
+
             Constructor<?> constructor =
                     constructors[0];
 
+            // on récupère les types des paramètres du constructeur
+
             Class<?>[] parameterTypes =
                     constructor.getParameterTypes();
+            // on crée un tableau d'objets pour stocker les paramètres du constructeur
 
             Object[] parameters =
                     new Object[parameterTypes.length];
+            // on résout les dépendances pour chaque paramètre du constructeur en
+            // appelant la méthode getBean pour chaque type de paramètre
 
             for (int i = 0; i < parameterTypes.length; i++) {
+                // on récupère le bean correspondant au type du paramètre
 
                 parameters[i] =
                         getBean(parameterTypes[i]);
             }
            // ce ci cree l'objet en utilisant le constructeur avec les paramètres résolus
             Object bean = constructor.newInstance(parameters);
+            // on injecte les dépendances dans les champs annotés avec @Autowired
             injectFields(bean);
+            // on appelle la méthode initializeBean pour exécuter les méthodes annotées avec
+            // @PostConstruct
             initializeBean(bean);
+
             return bean;
 
         } catch (Exception e) {
@@ -120,7 +135,7 @@ public class BeanContainer {
             if (field.isAnnotationPresent(Autowired.class)) {
                 Class<?> fieldType = field.getType();
 
-                Qualifier  qualifier = field.getAnnotation(Qualifier.class);
+                Qualifier qualifier = field.getAnnotation(Qualifier.class);
                 Object dependency;
                 if(qualifier != null) {
                     dependency = getBean(fieldType, qualifier.value());
@@ -156,15 +171,20 @@ public class BeanContainer {
         );
     }
 
+    // cree un methode findConstructors qui prend en parametre la classe et retourne le constructeur annoté avec
+    // @Autowired ou le constructeur par défaut si il n'y a pas de constructeur annoté avec @Autowired
+
     private Constructor<?>[] findConstructors(Class<?> type) {
         Constructor<?>[] constructors = type.getDeclaredConstructors();
 
         for(Constructor<?> constructor : constructors) {
             if (constructor.isAnnotationPresent(Autowired.class)) {
+                // si on trouve un constructeur annoté avec @Autowired, on retourne ce constructeur
                 return new Constructor<?>[]{constructor};
             }
         }
         if(constructors.length == 1) {
+            //tableau de constructeur contient un seul constructeur, on retourne ce constructeur
             return constructors;
         }
         throw new RuntimeException(
@@ -178,7 +198,7 @@ public class BeanContainer {
     private void  destroyBean(Object bean) {
         Method [] methods = bean.getClass().getDeclaredMethods();
         for(Method method : methods){
-            if(method.isAnnotationPresent(com.jablitech.minispring.annotations.PreDestroy.class)){
+            if(method.isAnnotationPresent(PreDestroy.class)){
                 try {
                     method.setAccessible(true);
                     method.invoke(bean);
@@ -201,25 +221,30 @@ public class BeanContainer {
         }
         beans.clear();
     }
-
-    private void initializeBean(Object bean) {
-        Method [] methods = bean.getClass().getDeclaredMethods();
+    // cree un method injectMethods qui prend en parametre un objet bean et injecte les
+    // dependances dans les methodes annotées avec @Autowired
+    private void injectMethods(Object bean){
+        Method[] methods = bean.getClass().getDeclaredMethods();
         for(Method method : methods){
-            if(method.isAnnotationPresent(PostConstruct.class)){
+            if(method.isAnnotationPresent(Autowired.class)){
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                Object[] parameters = new Object[parameterTypes.length];
+                for(int i= 0; i<parameterTypes.length; i++){
+                    parameters[i] = getBean(parameterTypes[i]);
+                }
                 try {
                     method.setAccessible(true);
-                    method.invoke(bean);
-                } catch (Exception e) {
-                    throw new RuntimeException(
-                            "Failed to invoke @PostConstruct method: "
-                                    + method.getName()
-                                    + " on bean of type: "
-                                    + bean.getClass().getName(),
-                            e
-                    );
+                    method.invoke(bean,parameters);
+                }catch(Exception e){
+                    throw new RuntimeException("Failed to inject dependencies into method:"
+                    + method.getName()
+                    + "in"
+                    + bean.getClass().getName(),e);
                 }
             }
         }
+
+
 
     }
 

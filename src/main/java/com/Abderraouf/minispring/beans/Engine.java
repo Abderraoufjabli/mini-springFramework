@@ -1,6 +1,6 @@
-package com.jablitech.minispring.beans;
+package com.Abderraouf.minispring.beans;
 
-import com.jablitech.minispring.annotations.Component;
+import com.Abderraouf.minispring.annotations.Component;
 
 @Component
 public class Engine {

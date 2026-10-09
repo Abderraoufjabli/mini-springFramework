@@ -1,4 +1,4 @@
-package com.jablitech.minispring.annotations;
+package com.Abderraouf.minispring.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

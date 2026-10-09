@@ -1,7 +1,7 @@
-package com.jablitech.minispring.beans;
+package com.Abderraouf.minispring.beans;
 
-import com.jablitech.minispring.annotations.Primary;
-import com.jablitech.minispring.annotations.Repository;
+import com.Abderraouf.minispring.annotations.Primary;
+import com.Abderraouf.minispring.annotations.Repository;
 
 @Repository
 @Primary

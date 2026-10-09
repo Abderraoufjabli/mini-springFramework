@@ -1,6 +1,6 @@
-package com.jablitech.minispring.beans;
+package com.Abderraouf.minispring.beans;
 
-import com.jablitech.minispring.annotations.Controller;
+import com.Abderraouf.minispring.annotations.Controller;
 
 @Controller
 public class VehicleController {

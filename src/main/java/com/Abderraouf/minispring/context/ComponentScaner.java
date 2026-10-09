@@ -1,6 +1,6 @@
-package com.jablitech.minispring.context;
+package com.Abderraouf.minispring.context;
 
-import com.jablitech.minispring.annotations.Component;
+import com.Abderraouf.minispring.annotations.Component;
 
 import java.io.File;
 import java.net.URL;
