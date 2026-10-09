@@ -112,6 +112,8 @@ public class BeanContainer {
             Object bean = constructor.newInstance(parameters);
             // on injecte les dépendances dans les champs annotés avec @Autowired
             injectFields(bean);
+
+            injectMethods(bean);
             // on appelle la méthode initializeBean pour exécuter les méthodes annotées avec
             // @PostConstruct
             initializeBean(bean);
@@ -125,6 +127,28 @@ public class BeanContainer {
                             + type.getName(),
                     e
             );
+        }
+    }
+
+    private void initializeBean(Object bean) {
+
+        Method[] methods = bean.getClass().getDeclaredMethods();
+
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(PostConstruct.class)) {
+                try {
+                    method.setAccessible(true);
+                    method.invoke(bean);
+                } catch (Exception e) {
+                    throw new RuntimeException(
+                            "Failed to invoke @PostConstruct method: "
+                                    + method.getName()
+                                    + " on bean of type: "
+                                    + bean.getClass().getName(),
+                            e
+                    );
+                }
+            }
         }
     }
 
