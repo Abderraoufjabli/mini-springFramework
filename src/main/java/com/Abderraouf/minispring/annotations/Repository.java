@@ -11,4 +11,5 @@ import java.lang.annotation.Target;
         ElementType.TYPE,
         ElementType.ANNOTATION_TYPE})
 public @interface Repository {
+    String value() default "";
 }

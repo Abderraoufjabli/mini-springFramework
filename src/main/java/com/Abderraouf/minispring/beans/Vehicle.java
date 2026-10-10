@@ -3,7 +3,7 @@ package com.Abderraouf.minispring.beans;
 import com.Abderraouf.minispring.annotations.Component;
 import com.Abderraouf.minispring.annotations.PostConstruct;
 import com.Abderraouf.minispring.annotations.PreDestroy;
-
+import com.Abderraouf.minispring.annotations.Repository;
 
 @Component
 public class Vehicle {

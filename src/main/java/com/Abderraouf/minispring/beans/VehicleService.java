@@ -9,7 +9,7 @@ public class VehicleService {
 
 
     @Autowired
-    @Qualifier("oracleVehicleRepository")
+    @Qualifier("oracle")
     private VehicleRepository vehicleRepository;
     public VehicleService() {
 
