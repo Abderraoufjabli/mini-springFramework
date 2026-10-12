@@ -31,6 +31,25 @@ public class BeanContainer {
         }
     }
 
+    public void registerBeanMethod(Object configurationInstance, Method method){
+        Class<?> beanType = method.getReturnType();
+        Bean annotation = method.getAnnotation(Bean.class);
+        String beanName;
+        if(!annotation.value().isEmpty()) {
+            beanName = annotation.value();
+        }else {
+            beanName = method.getName();
+        }
+        BeanDefinition definition =
+                new BeanDefinition(beanType,
+                        "singleton",
+                        false,
+                        beanName,
+                        method,
+                        configurationInstance);
+        beanDefinitions.put(beanType, definition);
+    }
+
 
     public <T> T getBean(Class<T> type) {
 
@@ -55,13 +74,42 @@ public class BeanContainer {
             }
         }
 
-        Object bean = createBean(beanType);
+        Object bean;
+        if(definition.getFactoryMethod() != null){
+            bean = createBeanFromFactoryMethod(definition);
+        }else {
+            bean = createBean(beanType);
+        }
 
         if (definition.getScope().equals("singleton")) {
             beans.put(beanType, bean);
         }
 
         return type.cast(bean);
+    }
+
+    private Object createBeanFromFactoryMethod(BeanDefinition definition) {
+        try {
+            Method method = definition.getFactoryMethod();
+            Object configurationInstance = definition.getConfigurationInstance();
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            Object[] parameters = new Object[parameterTypes.length];
+            for(int i = 0; i < parameterTypes.length; i++) {
+                parameters[i] = getBean(parameterTypes[i]);
+            }
+            method.setAccessible(true);
+            Object bean = method.invoke(configurationInstance, parameters);
+            initializeBean(bean);
+            return bean;
+        }catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to create bean from factory method: "
+                            + definition.getFactoryMethod().getName()
+                            + " in configuration class: "
+                            + definition.getConfigurationInstance().getClass().getName(),
+                    e
+            );
+        }
     }
 
 

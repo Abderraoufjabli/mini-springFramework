@@ -1,8 +1,11 @@
 package com.Abderraouf.minispring.context;
 
+import com.Abderraouf.minispring.annotations.Bean;
 import com.Abderraouf.minispring.annotations.Component;
+import com.Abderraouf.minispring.annotations.Configuration;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.net.URL;
 
 public class ComponentScaner {
@@ -75,6 +78,9 @@ public class ComponentScaner {
                 if (isComponent(clazz)) {
 
                     container.registerDefinition(clazz);
+                    if(clazz.isAnnotationPresent(Configuration.class)){
+                        findBeanMethods(clazz);
+                    }
                 }
 
 
@@ -100,5 +106,26 @@ public class ComponentScaner {
 
         }
         return false;
+    }
+    // cree une methode pour trouver les methodes annotées avec @Bean
+    // dans les classes annotées avec @Configuration
+    private void findBeanMethods(Class<?> configurationClass){
+       try {
+           Object configurationInstance = configurationClass.getDeclaredConstructor().newInstance();
+           Method [] methods = configurationClass.getDeclaredMethods();
+           for(Method method : methods){
+               if(method.isAnnotationPresent(Bean.class)){
+                   container.registerBeanMethod(configurationInstance, method);
+               }
+           }
+
+       }catch(Exception e) {
+           throw new RuntimeException(
+                   "Failed to create instance of configuration class: "
+                           + configurationClass.getName(),
+                   e
+           );
+
+       };
     }
 }
